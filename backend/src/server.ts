@@ -1,7 +1,8 @@
 import app from "./app";
 import prisma from "./config/prisma";
+import { env } from "./config/env";
 
-const PORT = Number(process.env.PORT) || 3000;
+const PORT = env.PORT;
 
 async function startServer(){
 
