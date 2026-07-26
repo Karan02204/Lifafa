@@ -1,27 +1,21 @@
 import type { Response } from "express";
 
-export class ApiResponse {
-    static success(
-        res : Response,
-        message: string,
-        data?: unknown,
-        statusCode = 200
-    ){
-        return res.status(statusCode).json({
-            sucess: true,
-            message,
-            data,
-        });
-    }
+class ApiResponse {
+  static success(res: Response, message: string, data: unknown) {
+    return res.status(200).json({
+      success: true,
+      message,
+      data,
+    });
+  }
 
-    static error(
-        res: Response,
-        message: string,
-        statusCode = 500
-    ) {
-        return res.status(statusCode).json({
-            success : false,
-            message,
-        });
-    }
+  static created(res: Response, message: string, data: unknown) {
+    return res.status(201).json({
+      success: true,
+      message,
+      data,
+    });
+  }
 }
+
+export default ApiResponse;

@@ -1,5 +1,5 @@
 import type { Request , Response } from "express";
-import { ApiResponse } from "../utils/ap-response";
+import ApiResponse from "../utils/ap-response";
 import healthService from "../services/health.service";
 
 class HealthController{
