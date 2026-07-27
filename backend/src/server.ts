@@ -8,7 +8,8 @@ async function startServer(){
 
   try{
 
-    await prisma.$connect();
+    const connection  = await prisma.$connect();
+    
 
     console.log("Database connected");
 
