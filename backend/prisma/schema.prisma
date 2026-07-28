@@ -12,6 +12,13 @@ datasource db {
   provider = "mysql"
 }
 
+enum EmailStatus {
+  PENDING
+  PROCESSING
+  SENT
+  FAILED
+}
+
 model User {
   id        Int      @id @default(autoincrement())
   googleId  String   @unique
@@ -20,4 +27,32 @@ model User {
   avatar    String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  emails    Email[]
+}
+
+
+
+model Email {
+
+    id          Int         @id @default(autoincrement())
+    userId      Int
+    user        User        @relation(fields: [userId], references: [id])
+    recipient   String
+    subject     String
+    body        String      @db.Text
+
+    scheduledAt DateTime
+    status      EmailStatus @default(PENDING)
+
+    jobId       String?     @unique
+    sentAt      DateTime?
+
+    createdAt   DateTime    @default(now())
+    updatedAt   DateTime    @updatedAt
+
+    @@index([userId])
+    @@index([status])
+    @@index([scheduledAt])
+
 }
