@@ -54,7 +54,7 @@ export const emailWorker = new Worker(
           status: EmailStatus.PROCESSING,
         },
       });
-      
+
       await mailService.send(email); // sending the email
 
       await prisma.email.update({
@@ -84,9 +84,5 @@ export const emailWorker = new Worker(
   {
     connection: redis,
     concurrency: env.WORKER_CONCURRENCY,
-    limiter: {
-      max: 1,
-      duration: 2000,
-    },
   },
 );
