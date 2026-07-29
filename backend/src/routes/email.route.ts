@@ -8,4 +8,9 @@ const router = Router();
 router.post("/", authenticate, asyncHandler(emailController.create));
 router.get("/", authenticate, emailController.getAllEmails);
 router.get("/:id", authenticate, emailController.getEmailById);
+router.patch("/:id", authenticate, emailController.updateEmail);
+router.delete("/:id", authenticate, emailController.deleteEmail);
+
+
+
 export default router;

@@ -1,7 +1,6 @@
 import type { Request, Response } from "express";
 import { createEmailSchema } from "../validators/email.validator";
 import { emailService } from "../services/email.service";
-import { success } from "zod";
 
 class EmailController {
   create = async (req: Request, res: Response) => {
@@ -26,21 +25,43 @@ class EmailController {
     });
   }
 
-  async getEmailById(req: Request , res: Response){
+  async getEmailById(req: Request, res: Response) {
     const userId = req.currentUser.id;
     const id = Number(req.params.id);
-    const email = await emailService.getEmailById(id , userId);
+    const email = await emailService.getEmailById(id, userId);
 
-    if (!email) {
-      return res.status(404).json({
-        success: false,
-        message: "Email not found",
-      });
-    }
 
     res.status(200).json({
       success: true,
       data: email,
+    });
+  }
+
+  async updateEmail(req: Request, res: Response) {
+    const emailId = Number(req.params.id);
+    const userId = req.currentUser!.id;
+
+    const updatedEmail = await emailService.updateEmail(
+      emailId,
+      userId,
+      req.body,
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: updatedEmail,
+    });
+  }
+
+  async deleteEmail(req: Request, res: Response) {
+    const emailId = Number(req.params.id);
+    const userId = req.currentUser!.id;
+
+    await emailService.deleteEmail(emailId, userId);
+
+    return res.status(200).json({
+      success: true,
+      message: "Email deleted successfully.",
     });
   }
 }
