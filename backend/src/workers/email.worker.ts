@@ -19,6 +19,9 @@ export const emailWorker = new Worker(
       where: {
         id: job.data.emailId,
       },
+      include: {
+        sender: true,
+      },
     });
 
     if (!email) {

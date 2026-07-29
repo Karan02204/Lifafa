@@ -1,34 +1,44 @@
 import nodemailer from "nodemailer";
 import { env } from "../config/env";
-import type { Email } from "../generated/prisma/client";
+import type { Email, Sender } from "../generated/prisma/client";
 
 class MailService {
-  private transporter = nodemailer.createTransport({
-    host: env.SMTP_HOST,
-    port: env.SMTP_PORT,
-    secure: false,
-    auth: {
-      user: env.SMTP_USER,
-      pass: env.SMTP_PASS,
-    },
-  });
+  send = async (email: Email & { sender: Sender }) => {
+    const transporter = nodemailer.createTransport({
+      host: env.SMTP_HOST,
+      port: env.SMTP_PORT,
+      secure: false,
+      auth: {
+        user: email.sender.email,
+        pass: email.sender.password,
+      },
+    });
 
-  send = async (email: Email) => {
-    await this.transporter.sendMail({
-      from: env.SMTP_FROM,
+    await transporter.sendMail({
+      from: email.sender.email,
       to: email.recipient,
       subject: email.subject,
       text: email.body,
       html: `
-      <div style="font-family: Arial, sans-serif;">
-        <p>${email.body}</p>
-      </div>
-    `,
+        <div style="font-family: Arial, sans-serif;">
+          <p>${email.body}</p>
+        </div>
+      `,
     });
   };
 
-  verify = async () => {
-    await this.transporter.verify();
+  verify = async (sender: Sender) => {
+    const transporter = nodemailer.createTransport({
+      host: "smtp.ethereal.email",
+      port: 587,
+      secure: false,
+      auth: {
+        user: sender.email,
+        pass: sender.password,
+      },
+    });
+
+    await transporter.verify();
   };
 }
 

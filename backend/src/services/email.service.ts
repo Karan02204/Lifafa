@@ -67,6 +67,17 @@ class EmailService {
 
   create = async (userId: number, data: CreateEmailInput): Promise<Email> => {
     // create the email
+    const sender = await prisma.sender.findFirst({
+      where: {
+        id: data.senderId,
+        userId,
+      },
+    });
+
+    if (!sender) {
+      throw new Error("Sender not found.");
+    }
+
     const email = await prisma.email.create({
       data: {
         userId,
@@ -105,11 +116,23 @@ class EmailService {
 
     await this.removeScheduledJob(email.jobId);
 
+    const sender = await prisma.sender.findFirst({
+      where: {
+        id: data.senderId,
+        userId,
+      },
+    });
+
+    if (!sender) {
+      throw new Error("Sender not found.");
+    }
+
     const updatedEmail = await prisma.email.update({
       where: {
         id,
       },
       data: {
+        senderId: data.senderId,
         recipient: data.recipient,
         subject: data.subject,
         body: data.body,

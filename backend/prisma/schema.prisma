@@ -29,31 +29,46 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  emails    Email[]
+  emails  Email[]
+  senders Sender[]
 }
 
-
-
 model Email {
+  id        Int    @id @default(autoincrement())
+  userId    Int
+  user      User   @relation(fields: [userId], references: [id])
+  recipient String
+  subject   String
+  body      String @db.Text
 
-    id          Int         @id @default(autoincrement())
-    userId      Int
-    user        User        @relation(fields: [userId], references: [id])
-    recipient   String
-    subject     String
-    body        String      @db.Text
+  scheduledAt DateTime
+  status      EmailStatus @default(PENDING)
 
-    scheduledAt DateTime
-    status      EmailStatus @default(PENDING)
+  jobId  String?   @unique
+  sentAt DateTime?
 
-    jobId       String?     @unique
-    sentAt      DateTime?
+  senderId Int
+  sender   Sender @relation(fields: [senderId], references: [id])
 
-    createdAt   DateTime    @default(now())
-    updatedAt   DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@index([userId])
-    @@index([status])
-    @@index([scheduledAt])
+  @@index([userId])
+  @@index([status])
+  @@index([scheduledAt])
+}
 
+model Sender {
+  id       Int    @id @default(autoincrement())
+  name     String
+  email    String
+  password String
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  emails Email[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
