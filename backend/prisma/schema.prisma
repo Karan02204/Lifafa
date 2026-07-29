@@ -17,6 +17,7 @@ enum EmailStatus {
   PROCESSING
   SENT
   FAILED
+  CANCELLED
 }
 
 model User {

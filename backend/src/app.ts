@@ -11,10 +11,10 @@ const app = express();
 app.use(express.json());
 app.use(passport.initialize());
 
-app.use("/health", healthRouter);
-app.use("/auth", authRouter);
-app.use("/users", userRouter);
-app.use("/email", emailRouter);
+app.use("/api/health", healthRouter);
+app.use("/api/auth", authRouter);
+app.use("/api/users", userRouter);
+app.use("/api/emails", emailRouter);
 
 app.use(errorMiddleware);
 export default app;
