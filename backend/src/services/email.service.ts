@@ -4,31 +4,24 @@ import { emailQueueService } from "../queues/email.queue";
 import type { Email } from "../generated/prisma/client";
 
 class EmailService {
-  create = async (userId: number, data: CreateEmailInput): Promise<Email> => {
-    const email = await prisma.email.create({
-      data: {
-        userId,
-        ...data,
-      },
-    });
-
+  private async scheduleEmail(emailId: number, scheduledAt: Date): Promise<string>{ // Extracted logic to schedule the job and return the jobID
     let job;
     try {
-      job = await emailQueueService.schedule(email.id, email.scheduledAt);
+      job = await emailQueueService.schedule(emailId, scheduledAt);
     } catch (error) {
       await prisma.email.delete({
         where: {
-          id: email.id,
+          id: emailId,
         },
       });
-
+  
       throw error;
     }
-
+  
     try {
       await prisma.email.update({
         where: {
-          id: email.id,
+          id: emailId,
         },
         data: {
           jobId: String(job.id),
@@ -36,12 +29,22 @@ class EmailService {
       });
     } catch (error) {
       await job.remove();
-
+  
       throw error;
     }
+  
+    return String(job.id);
+  }
 
-    email.jobId = String(job.id);
+  create = async (userId: number, data: CreateEmailInput): Promise<Email> => { // create the email
+    const email = await prisma.email.create({
+      data: {
+        userId,
+        ...data,
+      },
+    });
 
+    email.jobId = await this.scheduleEmail(email.id, email.scheduledAt);
     return email;
   };
 
@@ -57,7 +60,8 @@ class EmailService {
     });
   }
 
-  async getEmailById(id: number, userId: number) { //get the single email with the particular ID
+  async getEmailById(id: number, userId: number) {
+    //get the single email with the particular ID
     const email = await prisma.email.findFirst({
       where: {
         id,
