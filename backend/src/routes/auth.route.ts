@@ -1,6 +1,7 @@
 import { Router } from "express";
 import passport from "../config/passport";
 import { authController } from "../controllers/auth.controller";
+import { authenticate } from "../middlewares/jwt.middleware";
 const router = Router();
 
 router.get(
@@ -20,5 +21,6 @@ router.get(
   authController.googleCallback,
 );
 
+router.get("/me", authenticate, authController.me);
 
 export default router;

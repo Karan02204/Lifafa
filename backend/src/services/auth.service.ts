@@ -50,6 +50,12 @@ export class AuthService {
       token,
     };
   }
+
+  async getCurrentUser(id: number) {
+    return prisma.user.findUnique({
+      where: { id },
+    });
+  }
 }
 
 export const authService = new AuthService();

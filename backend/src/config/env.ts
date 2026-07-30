@@ -22,4 +22,6 @@ export const env = {
   WORKER_CONCURRENCY: Number(process.env.WORKER_CONCURRENCY),
   MAX_EMAILS_PER_HOUR: Number(process.env.MAX_EMAILS_PER_HOUR),
   MIN_DELAY_BETWEEN_EMAILS: Number(process.env.MIN_DELAY_BETWEEN_EMAILS),
+
+  FRONTEND_URL: process.env.FRONTEND_URL,
 };

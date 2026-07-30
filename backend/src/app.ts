@@ -5,11 +5,18 @@ import { errorMiddleware } from "./middlewares/error.middleware";
 import passport from "./config/passport";
 import userRouter from "./routes/user.route";
 import emailRouter from "./routes/email.route";
+import cors from "cors";
 
 const app = express();
 
 app.use(express.json());
 app.use(passport.initialize());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  }),
+);
 
 app.use("/api/health", healthRouter);
 app.use("/api/auth", authRouter);
