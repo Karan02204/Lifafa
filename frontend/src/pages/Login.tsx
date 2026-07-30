@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import LoginCard from "@/components/auth/LoginCard";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -8,8 +8,12 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <Button onClick={handleGoogleLogin}>Continue with Google</Button>
-    </div>
+    // <div className="flex min-h-screen items-center justify-center">
+    //   <Button onClick={handleGoogleLogin}>Continue with Google</Button>
+    // </div>
+
+    <main className="min-h-screen bg-white flex items-center justify-center px-6">
+      <LoginCard />
+    </main>
   );
 }

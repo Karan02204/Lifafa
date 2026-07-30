@@ -2,7 +2,9 @@ import { z } from "zod";
 
 export const createEmailSchema = z.object({
   senderId: z.number().int().positive(),
-  recipient: z.string().email("Invalid email address."),
+  recipients: z
+    .array(z.string().trim().email())
+    .min(1, "At least one recipient is required"),
 
   subject: z
     .string()

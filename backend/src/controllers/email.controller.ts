@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { createEmailSchema } from "../validators/email.validator";
 import { emailService } from "../services/email.service";
+import { EmailStatus } from "../generated/prisma/enums";
 
 class EmailController {
   create = async (req: Request, res: Response) => {
@@ -17,7 +18,9 @@ class EmailController {
   async getAllEmails(req: Request, res: Response) {
     const userId = req.currentUser.id;
 
-    const emails = await emailService.getAllEmails(userId);
+    const status = req.query.status as EmailStatus | undefined;
+
+    const emails = await emailService.getAllEmails(userId, status);
 
     res.status(200).json({
       success: true,

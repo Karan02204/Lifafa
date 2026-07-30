@@ -1,3 +1,50 @@
+import Sidebar from "@/components/dashboard/Sidebar";
+import TopBar from "@/components/dashboard/TopBar";
+import { useEmails } from "@/hooks/useEmails";
+import EmailList from "@/components/dashboard/EmailList";
+import { useSenders } from "@/hooks/useSenders";
+import { useState } from "react";
+import ComposeModal from "@/components/compose/ComposeModal";
+
 export default function Dashboard() {
-  return <div>Dashboard</div>;
+  const [activeTab, setActiveTab] = useState<"PENDING" | "SENT">("PENDING");
+  const { data: emails, isLoading: isEmailsLoading } = useEmails(activeTab);
+
+  const { data: scheduledEmails = [] } = useEmails("PENDING");
+
+  const { data: sentEmails = [] } = useEmails("SENT");
+
+  // const { data: senders = [], isLoading: isSendersLoading } = useSenders();
+  const [isComposeOpen, setIsComposeOpen] = useState(false);
+
+  // console.log(senders);
+
+  if (isEmailsLoading) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <div className="grid min-h-screen grid-cols-[320px_1fr] bg-white">
+      <Sidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        scheduledCount={scheduledEmails.length}
+        sentCount={sentEmails.length}
+        onCompose={() => setIsComposeOpen(true)}
+      />
+
+      <main className="flex flex-col">
+        <TopBar />
+
+        <section className="flex-1 overflow-y-auto">
+          <EmailList emails={emails ?? []} />
+        </section>
+      </main>
+
+      <ComposeModal
+        open={isComposeOpen}
+        onClose={() => setIsComposeOpen(false)}
+      />
+    </div>
+  );
 }

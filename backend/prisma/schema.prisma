@@ -15,10 +15,17 @@ datasource db {
 enum EmailStatus {
   PENDING
   PROCESSING
+  COMPLETED
+  PARTIAL_SUCCESS
+  FAILED
+}
+
+enum RecipientStatus {
+  PENDING
+  PROCESSING
   SENT
   FAILED
-  CANCELLED
-}
+} 
 
 model User {
   id        Int      @id @default(autoincrement())
@@ -34,28 +41,57 @@ model User {
 }
 
 model Email {
-  id        Int    @id @default(autoincrement())
-  userId    Int
-  user      User   @relation(fields: [userId], references: [id])
-  recipient String
-  subject   String
-  body      String @db.Text
+  id            Int         @id @default(autoincrement())
 
-  scheduledAt DateTime
-  status      EmailStatus @default(PENDING)
+  userId        Int
+  user          User        @relation(fields: [userId], references: [id])
 
-  jobId  String?   @unique
-  sentAt DateTime?
+  senderId      Int
+  sender        Sender      @relation(fields: [senderId], references: [id])
 
-  senderId Int
-  sender   Sender @relation(fields: [senderId], references: [id])
+  subject       String      @db.VarChar(255)
+  body          String      @db.Text
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  scheduledAt   DateTime
+
+  status        EmailStatus @default(PENDING)
+
+  jobId         String?     @unique
+
+  sentAt        DateTime?
+
+  recipients    EmailRecipient[]
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 
   @@index([userId])
+  @@index([senderId])
   @@index([status])
   @@index([scheduledAt])
+}
+
+model EmailRecipient {
+  id             Int              @id @default(autoincrement())
+
+  emailId        Int
+  email          Email            @relation(fields: [emailId], references: [id], onDelete: Cascade)
+
+  emailAddress   String           @db.VarChar(255)
+
+  status         RecipientStatus  @default(PENDING)
+
+  attempts       Int              @default(0)
+
+  sentAt         DateTime?
+
+  error          String?
+
+  createdAt      DateTime         @default(now())
+
+  @@index([emailId])
+  @@index([status])
+  @@index([emailAddress])
 }
 
 model Sender {

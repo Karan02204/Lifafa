@@ -5,6 +5,7 @@ import { errorMiddleware } from "./middlewares/error.middleware";
 import passport from "./config/passport";
 import userRouter from "./routes/user.route";
 import emailRouter from "./routes/email.route";
+import senderRouter from "./routes/sender.route";
 import cors from "cors";
 
 const app = express();
@@ -22,6 +23,7 @@ app.use("/api/health", healthRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
 app.use("/api/emails", emailRouter);
+app.use("/api/senders", senderRouter);
 
 app.use(errorMiddleware);
 export default app;

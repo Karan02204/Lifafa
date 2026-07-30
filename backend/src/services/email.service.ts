@@ -89,11 +89,15 @@ class EmailService {
     return email;
   };
 
-  async getAllEmails(userId: number) {
+  async getAllEmails(userId: number, status?: EmailStatus) {
     //get all the emails for the current User
     return await prisma.email.findMany({
       where: {
         userId,
+        ...(status && { status }),
+      },
+      include: {
+        sender: true,
       },
       orderBy: {
         scheduledAt: "desc",
