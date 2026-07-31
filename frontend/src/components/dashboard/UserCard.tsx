@@ -30,6 +30,7 @@ export default function UserCard() {
               src={user.avatar}
               alt={user.name}
               className="h-10 w-10 rounded-full object-cover"
+              referrerPolicy="no-referrer"
             />
           ) : (
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-600 font-semibold text-white">
