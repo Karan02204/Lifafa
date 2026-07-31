@@ -27,7 +27,7 @@ export default function ComposeModal({ open, onClose }: ComposeModalProps) {
     resolver: zodResolver(createEmailSchema),
     defaultValues: {
       senderId: 0,
-      recipient: "",
+      recipients: [],
       subject: "",
       body: "",
       scheduledAt: new Date(Date.now() + 60 * 1000),
@@ -39,7 +39,7 @@ export default function ComposeModal({ open, onClose }: ComposeModalProps) {
 
     form.reset({
       senderId: 0,
-      recipient: "",
+      recipients: [],
       subject: "",
       body: "",
       scheduledAt: new Date(Date.now() + 60 * 1000),

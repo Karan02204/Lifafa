@@ -4,8 +4,8 @@ import ComposeButton from "./ComposeButton";
 import SidebarNavigation from "./SidebarNavigation";
 
 interface SidebarProps {
-  activeTab: "PENDING" | "SENT";
-  setActiveTab: React.Dispatch<React.SetStateAction<"PENDING" | "SENT">>;
+  activeTab: "PENDING" | "COMPLETED";
+  setActiveTab: React.Dispatch<React.SetStateAction<"PENDING" | "COMPLETED">>;
   scheduledCount: number;
   sentCount: number;
   onCompose: () => void;

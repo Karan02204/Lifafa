@@ -27,7 +27,7 @@ export default function StatusBadge({ status, time }: StatusBadgeProps) {
     );
   }
 
-  if (status == "SENT"){
+  if (status == "COMPLETED"){
     return (
       <span
         className="rounded-full

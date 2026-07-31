@@ -10,6 +10,7 @@ import FormRow from "./FormRow";
 import SelectField from "./SelectField";
 import InputField from "./InputField";
 import RecipientUpload from "./RecipientUpload";
+import RecipientInput from "./RecipientInput";
 
 interface ComposeFormProps {
   form: UseFormReturn<CreateEmailInput>;
@@ -49,29 +50,43 @@ export default function ComposeForm({ form }: ComposeFormProps) {
         )}
 
         <FormRow label="To" className="border-b">
-          <div className="flex border-none items-center gap-4">
-            <InputField
-              {...register("recipient")}
-              className="flex-1"
-              placeholder="recipient@example.com"
+          <div className="flex flex-1 w-full items-center justify-between gap-4">
+            <Controller
+              control={control}
+              name="recipients"
+              render={({ field }) => (
+                <RecipientInput
+                  recipients={field.value}
+                  onChange={field.onChange}
+                />
+              )}
             />
 
             <RecipientUpload
-              onFileSelect={(file) => {
-                console.log(file);
+              onEmailsImported={(emails) => {
+                const currentRecipients = form.getValues("recipients");
+
+                const merged = Array.from(
+                  new Set([...currentRecipients, ...emails]),
+                );
+
+                form.setValue("recipients", merged, {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                });
               }}
             />
           </div>
         </FormRow>
 
-        {errors.recipient && (
+        {errors.recipients && (
           <p className="mt-1 text-sm text-red-500">
-            {errors.recipient.message}
+            {errors.recipients.message}
           </p>
         )}
 
         <FormRow label="Subject" className="border-b">
-          <InputField {...register("subject")} placeholder="Enter subject" />
+          <InputField {...register("subject")} placeholder="Enter subject" className="w-full"/>
         </FormRow>
 
         {errors.subject && (

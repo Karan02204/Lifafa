@@ -1,14 +1,25 @@
 import { Upload } from "lucide-react";
 import { useRef } from "react";
+import Papa from "papaparse";
 
 interface RecipientUploadProps {
-  onFileSelect: (file: File) => void;
+  onEmailsImported: (emails: string[]) => void;
 }
 
+const EMAIL_HEADERS = [
+  "email",
+  "email address",
+  "recipient",
+  "recipient email",
+];
+
 export default function RecipientUpload({
-  onFileSelect,
+  onEmailsImported,
 }: RecipientUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const isValidEmail = (email: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   function handleClick() {
     inputRef.current?.click();
@@ -19,7 +30,42 @@ export default function RecipientUpload({
 
     if (!file) return;
 
-    onFileSelect(file);
+    Papa.parse<Record<string, string>>(file, {
+      header: true,
+      skipEmptyLines: true,
+
+      complete: ({ data }) => {
+        if (!data.length) return;
+
+        const headers = Object.keys(data[0]);
+
+        const emailKey = headers.find((header) =>
+          EMAIL_HEADERS.includes(header.trim().toLowerCase()),
+        );
+
+        if (!emailKey) {
+          alert("No email column found in the uploaded file.");
+          return;
+        }
+
+        const emails = Array.from(
+          new Set(
+            data
+              .map((row) => row[emailKey] ?? "")
+              .map((email) => email.trim().toLowerCase())
+              .filter(Boolean)
+              .filter(isValidEmail),
+          ),
+        );
+
+        onEmailsImported(emails);
+      },
+
+      error(error) {
+        console.error(error);
+        alert("Failed to parse CSV.");
+      },
+    });
 
     event.target.value = "";
   }

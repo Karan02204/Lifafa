@@ -11,7 +11,11 @@ export default function EmailList({ emails }: EmailListProps) {
       {emails.map((email) => (
         <EmailRow
           key={email.id}
-          recipient={email.recipient}
+          recipient={
+            email.recipients.length === 1
+              ? email.recipients[0].emailAddress
+              : `${email.recipients[0].emailAddress} +${email.recipients.length - 1} more`
+          }
           subject={email.subject}
           preview={email.body}
           status={email.status}

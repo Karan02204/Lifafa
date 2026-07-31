@@ -2,17 +2,17 @@ import Sidebar from "@/components/dashboard/Sidebar";
 import TopBar from "@/components/dashboard/TopBar";
 import { useEmails } from "@/hooks/useEmails";
 import EmailList from "@/components/dashboard/EmailList";
-import { useSenders } from "@/hooks/useSenders";
+// import { useSenders } from "@/hooks/useSenders";
 import { useState } from "react";
 import ComposeModal from "@/components/compose/ComposeModal";
 
 export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState<"PENDING" | "SENT">("PENDING");
+  const [activeTab, setActiveTab] = useState<"PENDING" | "COMPLETED">("PENDING");
   const { data: emails, isLoading: isEmailsLoading } = useEmails(activeTab);
 
   const { data: scheduledEmails = [] } = useEmails("PENDING");
 
-  const { data: sentEmails = [] } = useEmails("SENT");
+  const { data: sentEmails = [] } = useEmails("COMPLETED");
 
   // const { data: senders = [], isLoading: isSendersLoading } = useSenders();
   const [isComposeOpen, setIsComposeOpen] = useState(false);

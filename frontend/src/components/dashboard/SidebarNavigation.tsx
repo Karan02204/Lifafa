@@ -1,8 +1,8 @@
 import { Clock3, Send } from "lucide-react";
 
 interface SidebarNavigationProps {
-  activeTab: "PENDING" | "SENT";
-  setActiveTab: React.Dispatch<React.SetStateAction<"PENDING" | "SENT">>;
+  activeTab: "PENDING" | "COMPLETED";
+  setActiveTab: React.Dispatch<React.SetStateAction<"PENDING" | "COMPLETED">>;
   scheduledCount: number;
   sentCount: number;
 }
@@ -18,7 +18,7 @@ export default function SidebarNavigation({activeTab,setActiveTab , scheduledCou
     },
     {
       label: "Sent",
-      status: "SENT" as const,
+      status: "COMPLETED" as const,
       icon: Send,
       count: sentCount,
     },

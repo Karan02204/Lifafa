@@ -3,7 +3,7 @@ import { env } from "../config/env";
 import type { Email, Sender } from "../generated/prisma/client";
 
 class MailService {
-  send = async (email: Email & { sender: Sender }) => {
+  send = async (email: Email & { sender: Sender }, recipientEmail: string) => {
     const transporter = nodemailer.createTransport({
       host: env.SMTP_HOST,
       port: env.SMTP_PORT,
@@ -16,7 +16,7 @@ class MailService {
 
     await transporter.sendMail({
       from: email.sender.email,
-      to: email.recipient,
+      to: recipientEmail,
       subject: email.subject,
       text: email.body,
       html: `

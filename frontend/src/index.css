@@ -117,6 +117,28 @@
     --sidebar-ring: oklch(0.556 0 0);
 }
 
+.react-datepicker {
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    font-family: inherit;
+    max-height: 15rem;
+    height: 90%;
+    overflow: hidden;
+    display: flex;
+}
+
+.react-datepicker__day--selected {
+    background-color: #16a34a !important;
+}
+
+.react-datepicker__time-container
+.react-datepicker__time
+.react-datepicker__time-box
+ul
+li.react-datepicker__time-list-item--selected {
+    background-color: #16a34a !important;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

@@ -1,4 +1,11 @@
-export type EmailStatus = "PENDING" | "SENT" | "FAILED";
+export type EmailStatus =
+  | "PENDING"
+  | "PROCESSING"
+  | "COMPLETED"
+  | "PARTIAL_SUCCESS"
+  | "FAILED";
+
+export type RecipientStatus = "PENDING" | "PROCESSING" | "SENT" | "FAILED";
 
 export interface Sender {
   id: number;
@@ -6,9 +13,18 @@ export interface Sender {
   name?: string;
 }
 
+export interface EmailRecipient {
+  id: number;
+  emailAddress: string;
+  status: RecipientStatus;
+  attempts: number;
+  sentAt: string | null;
+  error: string | null;
+}
+
 export interface Email {
   id: number;
-  recipient: string;
+  recipients: EmailRecipient[];
   subject: string;
   body: string;
   scheduledAt: string;

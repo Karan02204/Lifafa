@@ -3,7 +3,7 @@ import { redis } from "../config/redis";
 import type { EmailJobData } from "../queues/email.queue";
 import type { Job } from "bullmq";
 import prisma from "../config/prisma";
-import { EmailStatus } from "../generated/prisma/enums";
+import { EmailStatus, RecipientStatus } from "../generated/prisma/enums";
 import { mailService } from "../services/mail.service";
 import { env } from "../config/env";
 import { rateLimiterService } from "../services/rate-limiter.service";
@@ -12,77 +12,112 @@ import { emailService } from "../services/email.service";
 export const emailWorker = new Worker(
   "email-queue",
   async (job: Job<EmailJobData>) => {
-    // console.log("Job received:", job.id);
-
     const email = await prisma.email.findUnique({
-      // fetching the email from the database with the emailID from the job
       where: {
         id: job.data.emailId,
       },
       include: {
         sender: true,
+        recipients: true,
       },
     });
 
     if (!email) {
-      //If no email return
-      return;
-    }
-
-    if (email.status === EmailStatus.CANCELLED) {
-      // CANCELLED emails should not be sent
       return;
     }
 
     if (email.status !== EmailStatus.PENDING) {
-      // Only Pending Emails should be sent
       return;
     }
 
+    const permit = await rateLimiterService.acquirePermit(email.userId);
 
-    try {
-      const permit = await rateLimiterService.acquirePermit(email.userId);
+    if (!permit.allowed) {
+      await emailService.rescheduleEmail(email, permit.retryAfter!);
+      return;
+    }
 
-      if (!permit.allowed) {
-        await emailService.rescheduleEmail(email, permit.retryAfter!);
-        return;
-      }
-
-      await prisma.email.update({
-        // Updating the email status to PROCESSING
-        where: {
-          id: email.id,
-        },
-        data: {
-          status: EmailStatus.PROCESSING,
-        },
-      });
-
-      await mailService.send(email); // sending the email
-
-      await prisma.email.update({
-        // Updating the email status to SENT
-        where: {
-          id: email.id,
-        },
-        data: {
-          status: EmailStatus.SENT,
-          sentAt: new Date(),
-        },
-      });
-    } catch (error) {
-      await prisma.email.update({
-        //If the SMTP service is down set the status to FAILED
-        where: {
-          id: email.id,
-        },
-        data: {
-          status: EmailStatus.FAILED,
-        },
+    await prisma.email.update({
+      where: {
+        id: email.id,
+      },
+      data: {
+        status: EmailStatus.PROCESSING,
+      },
     });
 
-      throw error;
+    let successCount = 0;
+    let failedCount = 0;
+
+    for (const recipient of email.recipients) {
+      await prisma.emailRecipient.update({
+        where: {
+          id: recipient.id,
+        },
+        data: {
+          status: RecipientStatus.PROCESSING,
+        },
+      });
+
+      try {
+        await mailService.send(email, recipient.emailAddress);
+
+        successCount++;
+
+        await prisma.emailRecipient.update({
+          where: {
+            id: recipient.id,
+          },
+          data: {
+            status: RecipientStatus.SENT,
+            sentAt: new Date(),
+            attempts: {
+              increment: 1,
+            },
+            error: null,
+          },
+        });
+      } catch (error) {
+        failedCount++;
+
+        await prisma.emailRecipient.update({
+          where: {
+            id: recipient.id,
+          },
+          data: {
+            status: RecipientStatus.FAILED,
+            attempts: {
+              increment: 1,
+            },
+            error: error instanceof Error ? error.message : "Unknown error",
+          },
+        });
+
+        continue;
+      }
     }
+
+    const totalRecipients = email.recipients.length;
+
+    let finalStatus: EmailStatus;
+
+    if (successCount === totalRecipients) {
+      finalStatus = EmailStatus.COMPLETED;
+    } else if (failedCount === totalRecipients) {
+      finalStatus = EmailStatus.FAILED;
+    } else {
+      finalStatus = EmailStatus.PARTIAL_SUCCESS;
+    }
+
+    await prisma.email.update({
+      where: {
+        id: email.id,
+      },
+      data: {
+        status: finalStatus,
+        sentAt: new Date(),
+      },
+    });
   },
   {
     connection: redis,

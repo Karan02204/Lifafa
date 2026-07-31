@@ -14,9 +14,12 @@ class EmailService {
     try {
       job = await emailQueueService.schedule(emailId, scheduledAt);
     } catch (error) {
-      await prisma.email.delete({
+      await prisma.email.update({
         where: {
           id: emailId,
+        },
+        data: {
+          status: EmailStatus.FAILED,
         },
       });
 
@@ -46,6 +49,10 @@ class EmailService {
         id,
         userId,
       },
+      include: {
+        sender: true,
+        recipients: true,
+      },
     });
 
     if (!email) {
@@ -66,7 +73,7 @@ class EmailService {
   }
 
   create = async (userId: number, data: CreateEmailInput): Promise<Email> => {
-    // create the email
+    // Validate that the sender belongs to the current user
     const sender = await prisma.sender.findFirst({
       where: {
         id: data.senderId,
@@ -78,13 +85,29 @@ class EmailService {
       throw new Error("Sender not found.");
     }
 
-    const email = await prisma.email.create({
-      data: {
-        userId,
-        ...data,
-      },
+    // Create email and all recipients atomically
+    const email = await prisma.$transaction(async (tx) => {
+      const createdEmail = await tx.email.create({
+        data: {
+          userId,
+          senderId: data.senderId,
+          subject: data.subject,
+          body: data.body,
+          scheduledAt: data.scheduledAt,
+        },
+      });
+
+      await tx.emailRecipient.createMany({
+        data: data.recipients.map((recipient) => ({
+          emailId: createdEmail.id,
+          emailAddress: recipient,
+        })),
+      });
+
+      return createdEmail;
     });
 
+    // Schedule only after the transaction succeeds
     email.jobId = await this.scheduleEmail(email.id, email.scheduledAt);
     return email;
   };
@@ -98,6 +121,7 @@ class EmailService {
       },
       include: {
         sender: true,
+        recipients: true,
       },
       orderBy: {
         scheduledAt: "desc",
@@ -131,38 +155,41 @@ class EmailService {
       throw new Error("Sender not found.");
     }
 
-    const updatedEmail = await prisma.email.update({
-      where: {
-        id,
-      },
-      data: {
-        senderId: data.senderId,
-        recipient: data.recipient,
-        subject: data.subject,
-        body: data.body,
-        scheduledAt: data.scheduledAt,
-      },
-    });
-
-    try {
-      updatedEmail.jobId = await this.scheduleEmail(
-        updatedEmail.id,
-        updatedEmail.scheduledAt,
-      );
-
-      return updatedEmail;
-    } catch (error) {
-      await prisma.email.update({
+    const updatedEmail = await prisma.$transaction(async (tx) => {
+      const email = await tx.email.update({
         where: {
           id,
         },
         data: {
-          status: EmailStatus.FAILED,
+          senderId: data.senderId,
+          subject: data.subject,
+          body: data.body,
+          scheduledAt: data.scheduledAt,
         },
       });
 
-      throw error;
-    }
+      await tx.emailRecipient.deleteMany({
+        where: {
+          emailId: id,
+        },
+      });
+
+      await tx.emailRecipient.createMany({
+        data: data.recipients.map((recipient) => ({
+          emailId: id,
+          emailAddress: recipient,
+        })),
+      });
+
+      return email;
+    });
+
+    updatedEmail.jobId = await this.scheduleEmail(
+      updatedEmail.id,
+      updatedEmail.scheduledAt,
+    );
+
+    return updatedEmail;
   }
 
   async deleteEmail(id: number, userId: number) {
