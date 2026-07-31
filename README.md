@@ -114,20 +114,20 @@ The application follows a client-server architecture where the frontend handles 
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        React Frontend                          │
-│              (Vite · React Query · React Router)               │
+│                        React Frontend                           │
+│              (Vite · React Query · React Router)                │
 └──────────────────────────┬──────────────────────────────────────┘
                            │  REST API (Axios)
                            │  + JWT Bearer Token
                            ▼
-┌─────────────────────────────────────────────────────────────────┐
+┌────────────────────────────────────────────────────────────────┐
 │                       Express Backend                          │
 │       (Passport · Zod · Prisma · BullMQ · Nodemailer)          │
 │                                                                │
 │   ┌──────────────┐  ┌──────────────────┐  ┌──────────────────┐ │
 │   │   MySQL DB   │  │  BullMQ Queue    │  │      Redis       │ │
 │   │  (Prisma)    │  │  (Delayed Jobs)  │  │  (Jobs + Rate    │ │
-│   │              │  │                  │  │    Limiter)       │ │
+│   │              │  │                  │  │    Limiter)      │ │
 │   └──────┬───────┘  └────────┬─────────┘  └────────┬─────────┘ │
 └──────────┼───────────────────┼─────────────────────┼───────────┘
            │                   │                     │
@@ -605,18 +605,18 @@ No recipient information is lost during rate-limit pauses — the job is simply 
 Authentication is implemented using **Google OAuth 2.0** and **JWT**.
 
 ```
-┌──────────┐         ┌──────────────┐         ┌──────────┐
-│  Browser │         │   Backend    │         │  Google  │
-└────┬─────┘         └──────┬───────┘         └────┬─────┘
+┌──────────┐          ┌──────────────┐         ┌──────────┐
+│  Browser │          │   Backend    │         │  Google  │
+└────┬─────┘          └──────┬───────┘         └────┬─────┘
      │  1. Click "Sign in    │                      │
      │     with Google"      │                      │
      │──────────────────────>│                      │
      │                       │  2. Redirect to      │
-     │                       │     Google OAuth      │
+     │                       │     Google OAuth     │
      │                       │─────────────────────>│
      │                       │                      │
      │                       │  3. User grants      │
-     │                       │     consent           │
+     │                       │     consent          │
      │                       │<─────────────────────│
      │                       │                      │
      │  4. Passport verifies │                      │
@@ -631,7 +631,7 @@ Authentication is implemented using **Google OAuth 2.0** and **JWT**.
      │     Bearer <token>    │                      │
      │──────────────────────>│                      │
      │                       │                      │
-     │  7. Middleware         │                      │
+     │  7. Middleware        │                      │
      │     validates JWT     │                      │
      │<──────────────────────│                      │
 ```
