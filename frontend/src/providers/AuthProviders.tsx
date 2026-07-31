@@ -47,9 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("token");
     setToken(null);
 
-    queryClient.removeQueries({
-      queryKey: ["me"],
-    });
+    queryClient.clear();
   };
 
   return (

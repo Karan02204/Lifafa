@@ -2,7 +2,7 @@ import { Funnel, RotateCw, Search } from "lucide-react";
 
 export default function TopBar() {
   return (
-    <header className="flex items-center gap-4 border-b border-gray-200 px-8 py-4">
+    <header className="flex items-center gap-4 border-gray-200 px-8 py-4">
       <div className="relative max-w-200 flex-1">
         <Search
           size={16}

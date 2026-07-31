@@ -4,6 +4,7 @@ import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import AuthCallback from "./pages/AuthCallback";
+import EmailDetails from "./pages/EmailDetails";
 
 export default function App() {
   return (
@@ -23,6 +24,7 @@ export default function App() {
           }
         />
 
+        <Route path="/emails/:id" element={<EmailDetails />} />
       </Routes>
     </BrowserRouter>
   );

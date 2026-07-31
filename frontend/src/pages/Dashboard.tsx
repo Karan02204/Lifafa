@@ -8,7 +8,7 @@ import ComposeModal from "@/components/compose/ComposeModal";
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<"PENDING" | "COMPLETED">("PENDING");
-  const { data: emails, isLoading: isEmailsLoading } = useEmails(activeTab);
+  const { data: emails = [], isLoading, isError } = useEmails(activeTab);
 
   const { data: scheduledEmails = [] } = useEmails("PENDING");
 
@@ -19,8 +19,20 @@ export default function Dashboard() {
 
   // console.log(senders);
 
-  if (isEmailsLoading) {
-    return <div>Loading...</div>;
+  if (isLoading) {
+    return (
+      <div className="grid min-h-screen place-items-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-300 border-t-green-600" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="grid min-h-screen place-items-center">
+        <p className="text-red-500">Failed to load emails.</p>
+      </div>
+    );
   }
 
   return (
@@ -37,7 +49,7 @@ export default function Dashboard() {
         <TopBar />
 
         <section className="flex-1 overflow-y-auto">
-          <EmailList emails={emails ?? []} />
+          <EmailList emails={emails ?? []} status={activeTab} />
         </section>
       </main>
 

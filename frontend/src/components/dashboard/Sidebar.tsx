@@ -15,7 +15,8 @@ interface SidebarProps {
 
 export default function Sidebar({ activeTab, setActiveTab , scheduledCount , sentCount , onCompose }: SidebarProps) {
   return (
-    <aside className="flex h-screen flex-col border-r border-gray-200 bg-white px-3 py-6">
+    <aside className="flex h-screen flex-col border-gray-200 bg-white px-3 py-3
+    ">
       <Logo />
 
       <div className="mt-5">
