@@ -422,7 +422,8 @@ SMTP_HOST=smtp.ethereal.email
 SMTP_PORT=587
 ```
 
-5. When adding a **Sender** in the app, use the Ethereal email and password as the sender credentials
+5. When adding a **Sender** in the app, use the Ethereal email and password as the sender credentials.
+6. run npx prisma studio inside the backend folder and add a new row with the sender details
 
 All scheduled emails will be delivered to Ethereal's virtual mailbox instead of real inboxes, allowing safe testing without sending actual emails. You can view delivered emails at [https://ethereal.email/messages](https://ethereal.email/messages).
 
