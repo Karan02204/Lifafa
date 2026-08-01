@@ -716,6 +716,11 @@ Authentication is implemented using **Google OAuth 2.0** and **JWT**.
 
 A short demonstration video showcasing the application is included with the submission.
 
+
+https://github.com/user-attachments/assets/02db2124-2166-46d3-b9c8-e4a1bcfa0d47
+
+
+
 The demo covers:
 
 - 🔐 Google OAuth login
