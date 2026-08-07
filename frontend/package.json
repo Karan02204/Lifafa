@@ -27,6 +27,7 @@
     "axios": "^1.19.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dompurify": "^3.4.13",
     "lucide-react": "^1.27.0",
     "papaparse": "^5.5.4",
     "react": "^19.2.7",
@@ -44,6 +45,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@types/dompurify": "^3.0.5",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.17",
     "@types/react-datepicker": "^6.2.0",

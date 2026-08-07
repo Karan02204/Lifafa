@@ -1,72 +1,43 @@
 import type { Request, Response } from "express";
-import { createEmailSchema } from "../validators/email.validator";
+import { createEmailSchema, emailQuerySchema } from "../validators/email.validator";
 import { emailService } from "../services/email.service";
-import { EmailStatus } from "../generated/prisma/enums";
 
 class EmailController {
   create = async (req: Request, res: Response) => {
     const data = createEmailSchema.parse(req.body);
-
     const email = await emailService.create(req.currentUser!.id, data);
-
-    return res.status(201).json({
-      success: true,
-      data: email,
-    });
+    return res.status(201).json({ success: true, data: email });
   };
 
-  async getAllEmails(req: Request, res: Response) {
-    const userId = req.currentUser.id;
+  getAllEmails = async (req: Request, res: Response) => {
+    const userId = req.currentUser!.id;
+    const parsed = emailQuerySchema.parse(req.query);
+    const result = await emailService.getAllEmails(userId, parsed as any);
+    res.status(200).json({ success: true, ...result });
+  };
 
-    const status = req.query.status as EmailStatus | undefined;
-
-    const emails = await emailService.getAllEmails(userId, status);
-
-    res.status(200).json({
-      success: true,
-      data: emails,
-    });
-  }
-
-  async getEmailById(req: Request, res: Response) {
-    const userId = req.currentUser.id;
+  getEmailById = async (req: Request, res: Response) => {
+    const userId = req.currentUser!.id;
     const id = Number(req.params.id);
+    if (!Number.isFinite(id)) return res.status(400).json({ success: false, message: "Invalid id" });
     const email = await emailService.getEmailById(id, userId);
+    res.status(200).json({ success: true, data: email });
+  };
 
-
-    res.status(200).json({
-      success: true,
-      data: email,
-    });
-  }
-
-  async updateEmail(req: Request, res: Response) {
+  updateEmail = async (req: Request, res: Response) => {
     const emailId = Number(req.params.id);
     const userId = req.currentUser!.id;
+    const data = createEmailSchema.parse(req.body);
+    const updatedEmail = await emailService.updateEmail(emailId, userId, data);
+    return res.status(200).json({ success: true, data: updatedEmail });
+  };
 
-    const updatedEmail = await emailService.updateEmail(
-      emailId,
-      userId,
-      req.body,
-    );
-
-    return res.status(200).json({
-      success: true,
-      data: updatedEmail,
-    });
-  }
-
-  async deleteEmail(req: Request, res: Response) {
+  deleteEmail = async (req: Request, res: Response) => {
     const emailId = Number(req.params.id);
     const userId = req.currentUser!.id;
-
     await emailService.deleteEmail(emailId, userId);
-
-    return res.status(200).json({
-      success: true,
-      message: "Email deleted successfully.",
-    });
-  }
+    return res.status(200).json({ success: true, message: "Email deleted successfully." });
+  };
 }
 
 export const emailController = new EmailController();

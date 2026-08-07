@@ -5,7 +5,7 @@ import SidebarNavigation from "./SidebarNavigation";
 
 interface SidebarProps {
   activeTab: "PENDING" | "COMPLETED";
-  setActiveTab: React.Dispatch<React.SetStateAction<"PENDING" | "COMPLETED">>;
+  setActiveTab: (tab: "PENDING" | "COMPLETED") => void;
   scheduledCount: number;
   sentCount: number;
   onCompose: () => void;
