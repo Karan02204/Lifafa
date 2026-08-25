@@ -1,4 +1,4 @@
-# 📧 Email Job Scheduler
+# 📧 Lifafa - Email Job Scheduler
 
 A production-inspired email scheduling platform that enables users to authenticate with Google, compose rich-text emails, upload recipient lists via CSV, and schedule email campaigns for future delivery.
 
