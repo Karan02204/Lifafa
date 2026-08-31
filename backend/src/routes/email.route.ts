@@ -6,11 +6,9 @@ import { emailController } from "../controllers/email.controller";
 const router = Router();
 
 router.post("/", authenticate, asyncHandler(emailController.create));
-router.get("/", authenticate, emailController.getAllEmails);
-router.get("/:id", authenticate, emailController.getEmailById);
-router.patch("/:id", authenticate, emailController.updateEmail);
-router.delete("/:id", authenticate, emailController.deleteEmail);
-
-
+router.get("/", authenticate, asyncHandler(emailController.getAllEmails));
+router.get("/:id", authenticate, asyncHandler(emailController.getEmailById));
+router.patch("/:id", authenticate, asyncHandler(emailController.updateEmail));
+router.delete("/:id", authenticate, asyncHandler(emailController.deleteEmail));
 
 export default router;

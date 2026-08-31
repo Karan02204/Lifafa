@@ -1,5 +1,4 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import ProtectedRoute from "./routes/ProtectedRoute";
@@ -11,7 +10,6 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
-
         <Route path="/login" element={<Login />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
 
@@ -24,7 +22,14 @@ export default function App() {
           }
         />
 
-        <Route path="/emails/:id" element={<EmailDetails />} />
+        <Route
+          path="/emails/:id"
+          element={
+            <ProtectedRoute>
+              <EmailDetails />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

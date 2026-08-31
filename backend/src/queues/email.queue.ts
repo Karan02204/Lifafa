@@ -4,6 +4,12 @@ import { redis } from "../config/redis";
 
 export const emailQueue = new Queue("email-queue", {
   connection: redis,
+  defaultJobOptions: {
+    removeOnComplete: 100,
+    removeOnFail: 50,
+    attempts: 3,
+    backoff: { type: "exponential", delay: 5000 },
+  },
 });
 
 export interface EmailJobData {
@@ -11,19 +17,16 @@ export interface EmailJobData {
 }
 
 export class EmailQueue {
-  schedule = async (
-    emailId: number,
-    scheduledAt: Date,
-  ): Promise<Job<EmailJobData>> => {
-    const delay = scheduledAt.getTime() - Date.now();
+  schedule = async (emailId: number, scheduledAt: Date): Promise<Job<EmailJobData>> => {
+    const rawDelay = scheduledAt.getTime() - Date.now();
+    const delay = Math.max(0, rawDelay);
 
     return emailQueue.add(
       "send-email",
-      {
-        emailId,
-      },
+      { emailId },
       {
         delay,
+        jobId: `email-${emailId}-${Date.now()}`, // unique per schedule to allow reschedule
       },
     );
   };
